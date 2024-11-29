@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Form</title>
+    <link rel="stylesheet" href="./css/blogerLaout..css">
+    <script defer src="./js/blogerWorkflow.js"></script>
+    <script defer src="./js/addAuctionImage.js"></script>
+    <script defer id="youtubeScript" src=""></script>
+    <script defer src="./js/youTubeIframeManager.js"></script>
+
+</head>
+
+<body>
+    <div class="img-auction-preview-tools" id="previewImageAuction">
+        <div id="imgAuctionPreviewWrap" class="img-auction-prview-wrapper">
+            <img class="img-auction-preview-elt" id="auctionImgpreview" src="" alt="">
+        </div>
+        <div id="alertUChoosetheImage" class="simple-one-col-container">
+            <span>Ви обрали це зображення!</span>
+        </div>
+        <div class="img-preview-btns-container">
+            <button class="welcome-btns-bloger" id="resetImgToNew">Обрати Інше</button>
+            <button class="welcome-btns-bloger" id="agreeThisImg">Це є добре</button>
+            <button class="welcome-btns-bloger" id="setDefaultImg">Дефолтне</button>
+        </div>
+    </div>
+    <script>
+        const thisAuctionFormDataMediator = new FormData();
+        const defaultImgsrc = "./img/wizard.png"
+        const submitImageObj = {
+            sbmitAuctionImage: 'auctionAimInput',
+            agreeThisImg: { filesSrc: 'auctionImageInput', targetFormDataMeiator: thisAuctionFormDataMediator, targetImgEltId: 'imgOfThisAuctionItem' },
+            setDefaultImg: { src: defaultImgsrc, targetFormDataMeiator: thisAuctionFormDataMediator, targetImgEltId: 'imgOfThisAuctionItem' },
+            resetImgToNew: { reset: true, click: 'sbmitAuctionImage', filesSrc: 'auctionImageInput', targetFormDataMeiator: thisAuctionFormDataMediator, targetImgEltId: 'imgOfThisAuctionItem' }
+        }
+        const submitBtnsINputsAuctionRelObject = {
+            sbmitAuctionName: { action: 'value', id: 'auctionNameInput', chain: null },
+            sbmitAuctionStart: { action: "value", id: 'auctionStartInput', chain: null },
+            sbmitAuctionAim: { action: "value", id: 'auctionAimInput', chain: null },
+            sbmitAuctionImage: { action: "click", id: "auctionImageInput", chain: submitImageObj },
+        }
+        // submit form pairs btn-input lib of all required pairs (use field-validation, empty-libs etc);
+        const checkSUbmittingEmptiesLib = {
+            sbmitAuctionName: 'auctionNameInput',
+            sbmitAuctionStart: 'auctionStartInput',
+            sbmitAuctionAim: 'auctionAimInput',
+        }
+        const layoutsLib = {
+            initWorkspace: 'initWorkspaceBloger',
+            toolsWorkspace: 'blogerWorkspace',
+            backMainMenu: 'blogerWorkspace',
+
+            createNewAuctionBtnId: 'createAuctionManagerOpen',
+        }
+        const dataKeysFormDataMediatorAuction = {
+            name: 'auctionName',
+            datetime: 'auctionStart',
+            aim: 'auctionAme',
+            image: 'auctionImage'
+        };
+        const elementsLibAuctionInitiation = {
+            stageAuktionMenuName: "wrapauctionNameInput",
+            stageAuktionMenuStartTime: "wrapauctionStartInput",
+            stageAuktionMenuAim: "wrapauctionAimInput",
+            stageAuktionMenuImage: "wrapauctionImageInput"
+        }
+        const audioOhNoPath = './sounds/girl-oh-no.mp3';
+        const beepSound = './sounds/beep.mp3';
+        const dragпerLib = {
+            auctionRepresentation: {
+                frameId: 'countDownElt',
+                dragEltId: 'auctionContainerDraggingTool',
+                frameStealthMenu: 'closeAuctionWrap',
+                frameAppearsMenu: 'OpenAuctionWrap'
+            },
+            auctionStakesManager: {
+                frameId: 'transactionForm',
+                dragEltId: 'draggerTransactionsForm',
+                frameStealthMenu: 'ManageAuctionClose',
+                frameAppearsMenu: 'ManageAuctionOpen'
+            },
+            participantsTable: {
+                frameId: 'resultsTablethisAuction',
+                dragEltId: 'draggingAuctionresultsHeader',
+                frameStealthMenu: 'closeUsersTable',
+                frameAppearsMenu: 'openUsersTable'
+            },
+            createAuctionManager: {
+                frameId: 'initiationAuctionModule',
+                dragEltId: 'crteateAuctionDrager',
+                frameStealthMenu: 'createAuctionManagerClose',
+                frameAppearsMenu: 'createAuctionManagerOpen'
+            },
+            createYoutubeFrameForm: {
+                frameId: 'setUpyoutubeFrameThisSession',
+                dragEltId: 'draggingSetupsessionthisstream',
+                frameStealthMenu: 'CloseCreateUtubeLinkForm',
+                frameAppearsMenu: 'OpenCreateUtubeLinkForm'
+            }
+        }
+    </script>
+    <div id="blogerWorkspace" class="bloger-workspace-main">
+        <div class="dedicated-inner-width">
+            <h3 style="margin-top: 0;text-align: center; max-width: 100%; min-width: 360px; color: rgb(138, 141, 138);">
+                Керування
+                поточними процесами, головне меню..</h3>
+            <nav class="navigation-layout">
+
+                <div class="">
+                    <button id="OpenAuctionWrap" class="main-navigation-btns-bloger-plus"
+                        title="Поточний стан активного Аукціону">Аукціон <span
+                            style="font-size: 20px;">🏛</span></button>
+                    <button id="closeAuctionWrap" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно Стану Аукціону">Аукціон-</button>
+                </div>
+                <div class="">
+                    <button id="openUsersTable" class="main-navigation-btns-bloger-plus"
+                        title="Стаитстика поточного аукціону, та донатери">Донатери <span
+                            style="font-size: 20px;">🏛</span></button>
+                    <button id="closeUsersTable" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно зі Статистиці Аукціону">Донатери-</button>
+                </div>
+                <div class="">
+                    <button id="ManageAuctionOpen" class="main-navigation-btns-bloger-plus"
+                        title="Додання ставок, учасників, керування ставок..">Ставки <span
+                            style="font-size: 20px;">🏛</span></button>
+                    <button id="ManageAuctionClose" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно керування зі ставок та учасників аукціону..">Ставки-</button>
+                </div>
+                <div class="">
+                    <button id="createAuctionManagerOpen" class="main-navigation-btns-bloger-plus"
+                        title="Створити та призначити новий Аукціон">Створити <span
+                            style="font-size: 20px;">🏛</span></button>
+                    <button id="createAuctionManagerClose" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно створення Аукціонів">Створити-</button>
+                </div>
+                <div class="">
+                    <button id="OpenWishesOponents" class="main-navigation-btns-bloger-plus"
+                        title="Завдання на побажаня співрозмовниках у стрімі або сесії..">Побажання+</button>
+                    <button id="CloseWishesOponebts" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно завдань з питань до співрозмовників..">Побажання-</button>
+                </div>
+                <div class="">
+                    <button id="OpenCreateUtubeLinkForm" class="main-navigation-btns-bloger-plus"
+                        title="Керування призначених стрімів, додати ID youtube..">ВідеоID+</button>
+                    <button id="CloseCreateUtubeLinkForm" class="main-navigation-btns-bloger-min"
+                        title="Згорнути вікно з керування відео..">ВідеоID-</button>
+                </div>
+            </nav>
+        </div>
+        <aside class="aside-bloger-stream-tools">
+            <nav class="aside-nav-strem-tool-col">
+
+                <button class="main-navigation-btns-bloger-plus">Завантажіти <span
+                        style="font-size: 20px;">🏛</span></button>
+                <button class="main-navigation-btns-bloger-plus">Почати <span style="font-size: 20px;">🎬
+                        ▶</span>
+                </button>
+                <button class="main-navigation-btns-bloger-plus">Чати <span
+                        style="font-size: 20px;">💬🗨️</span></button>
+
+            </nav>
+            <nav class="aside-nav-strem-tool-col">
+
+                <button class="main-navigation-btns-bloger-plus">Модери <span
+                        style="font-size: 20px;">🕵🏻‍♂️</span></button>
+                <button class="main-navigation-btns-bloger-plus">Пости <span style="font-size: 20px;">📝</span></button>
+                <button class="main-navigation-btns-bloger-plus">Питання <span
+                        style="font-size: 20px;">🙋🏻‍♂️</span></button>
+
+            </nav>
+            <nav class="aside-nav-strem-tool-col">
+
+                <button class="main-navigation-btns-bloger-plus">Спільнота <span
+                        style="font-size: 20px;">👥</span></button>
+                <button class="main-navigation-btns-bloger-plus">Знайти->бан <span
+                        style="font-size: 20px;">👤🚷</span></button>
+            </nav>
+            <nav class="aside-nav-strem-tool-col">
+
+                <button class="main-navigation-btns-bloger-plus bg-set-reddish">Пауза Сесії</button>
+                <button class="main-navigation-btns-bloger-plus bg-set-reddish">Зберегти Сесію</button>
+                <button class="main-navigation-btns-bloger-plus bg-set-reddish">Зберегти Аукціон <span
+                        style="font-size: 20px;">🏛</span></button>
+                <button class="main-navigation-btns-bloger-plus bg-set-reddish">Роздивитись Звіт Сесії</button>
+                <button id="backMainMenu" class="main-navigation-btns-bloger-plus bg-set-reddish">Головне Меню <span
+                        style="font-size: 20px;">🛠️</span></button>
+            </nav>
+            <script defer>
+                document.addEventListener('DOMContentLoaded', async (evt) => {
+                    const backMenuBtn = document.getElementById(`backMainMenu`);
+                    const workspace = document.getElementById('blogerWorkspace');
+                    setTimeout(async () => {
+                        const mainMenu = document.getElementById('initWorkspaceBloger');
+                        backMenuBtn.addEventListener('click', async (event) => {
+                            workspace.style.display = 'none';
+                            mainMenu.style.display = 'grid';
+                        })
+                    }, 300);
+                })
+
+
+            </script>
+        </aside>
+        <div id="transactionForm" class="stakes-activity-form hidden">
+            <h2 id="draggerTransactionsForm"
+                style="text-align: center; max-width: 500px; min-width: 360px; color: rgb(138, 141, 138);">Керування
+                Ставок З Активного Аукціону!</h2>
+            <div class="update-participants-stakes">
+                <!-- Name Field -->
+
+                <div class="form-group-stakes">
+                    <label class="bloger-label" id="labelOfNameExists" for="nameExists">Добродій(ка):</label>
+                    <select id="nameExists" name="name">
+                        <option value="" selected>обрати:</option>
+                        <option value="addNew">Додати</option>
+                    </select>
+                    <label class="bloger-label" id="labelofname" for="name" style="display: none;">Ім'я:</label>
+                    <div id='inputNameswrap' class="choose-participant-stake">
+                        <input class="input-new-participant" type="text" id="name" name="participantName">
+                        <input class="submit-new-participant" type="checkbox" id="submitNewName">
+                    </div>
+                    <script>
+
+                        const sectionElement = document.getElementById('nameExists');
+
+                        sectionElement.addEventListener('change', async (option) => {
+                            console.log("value", event.target.selectedIndex);
+                            const submitUpdateElt = document.getElementById('submitNewName');
+                            const thischosenOpt = event.target.selectedIndex;
+                            const labelofname = document.getElementById('labelofname');
+                            const inputsData = document.getElementById('inputNameswrap');
+                            const initLabel = document.getElementById('labelOfNameExists');
+                            const chosenOpt = sectionElement.options[thischosenOpt];
+                            const onbehalv = document.getElementById('onBehalf');
+                            const inbehalv = [];
+                            Array.from(sectionElement.options).forEach((option) => {
+                                inbehalv.push(option.value);
+                            })
+                            if (thischosenOpt === 1) {
+                                initLabel.style.display = 'none';
+                                sectionElement.style.display = 'none';
+                                labelofname.style.display = 'block';
+                                inputsData.style.display = 'grid';
+                                inputsData.style.gridTemplateColumns = 'auto auto';
+                                const updateSelectNesting = async (event) => {
+                                    const elementData = document.getElementById('name');
+                                    elementData.focus();
+                                    console.log(elementData.value);
+
+                                    if (elementData.value !== '') {
+                                        const allData = [];
+                                        Array.from(sectionElement.options).forEach((option) => {
+                                            allData.push(option.value);
+                                        })
+                                        if (!allData.includes(elementData.value)) {
+                                            const newOption = document.createElement('option');
+                                            const thisValue = elementData.value;
+                                            newOption.value = thisValue;
+                                            newOption.text = thisValue;
+                                            sectionElement.appendChild(newOption);
+                                            if (!inbehalv.includes(elementData.value)) {
+                                                const newBehalfOpt = document.createElement('option');
+                                                newBehalfOpt.value = thisValue;
+                                                newBehalfOpt.text = thisValue;
+                                                onbehalv.appendChild(newBehalfOpt);
+                                            }
+                                            elementData.value = '';
+                                            sectionElement.selectedIndex = allData.length;
+                                            event.target.checked = false;
+                                            initLabel.style.display = 'block';
+                                            sectionElement.style.display = 'block';
+                                            labelofname.style.display = 'none';
+                                            inputsData.style.display = 'none';
+                                            submitUpdateElt.removeEventListener('change', updateSelectNesting);
+                                        } else {
+                                            console.log('this is exists');
+                                            elementData.value = '';
+                                            event.target.checked = false;
+                                            initLabel.style.display = 'block';
+                                            sectionElement.style.display = 'block';
+                                            labelofname.style.display = 'none';
+                                            inputsData.style.display = 'none';
+                                            submitUpdateElt.removeEventListener('change', updateSelectNesting);
+                                        }
+                                    }
+                                }
+                                submitUpdateElt.addEventListener('change', updateSelectNesting);
+                            }
+                        });
+                    </script>
+                </div>
+
+                <!-- Money Field -->
+                <div class="form-group-stakes">
+                    <label class="bloger-label" for="money">Донат:</label>
+                    <input type="text" id="money" name="thisStake">
+                </div>
+
+                <!-- Currency Selection -->
+                <div class="form-group-stakes">
+                    <label class="bloger-label" for="currency">Currency:</label>
+                    <select id="currency" name="currency">
+                        <option selected value="UAH">обрати:</option>
+                        <option value="USD">USD</option>
+                        <option value="USDT">USDT</option>
+                        <option value="UAH">UAH</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                </div>
+
+                <!-- On Behalf Of User Checkbox -->
+                <div class="form-group-stakes">
+                    <label class="bloger-label" for="onBehalf">Додати до..</label>
+                    <select type="text" id="onBehalf">
+                        <option selected value="">--</option>
+
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group-stakes">
+                    <label class="bloger-label" for="selectThis">Прийнято!</label>
+                    <input id="selectThisStake" type="checkbox">
+                </div>
+
+            </div>
+            <hr />
+            <div class="btn-container-stakes">
+                <button class="contact-expand" onclick="toggleContactDetails()">Контактні дані</button>
+            </div>
+            <!-- Expand Contacts -->
+            <div class="update-participants-contacts">
+
+                <div class="contact-details" id="contactDetails">
+                    <div class="form-group-stakes">
+                        <label class="bloger-label" for="contactEmail">Email:</label>
+                        <input type="text" id="contactEmail" name="email">
+                    </div>
+                    <!-- Phone -->
+                    <div class="form-group-stakes">
+                        <label class="bloger-label" for="contactPhone">Телефон:</label>
+                        <input type="tel" id="contactPhone" name="phone">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Function to toggle the contact details section
+            function toggleContactDetails() {
+                const contactDetails = document.getElementById('contactDetails');
+                contactDetails.style.display = contactDetails.style.display === 'none' || !contactDetails.style.display ? 'grid' : 'none';
+            }
+
+            // Optional: Add form submission handling
+            document.getElementById('transactionForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                alert('Form submitted');
+                // Add custom submission logic here
+            });
+        </script>
+        <!---->
+        <div id="countDownElt" class="auction-bloger-toolset hidden">
+
+            <p id="auctionContainerDraggingTool" class="dragging-frame-header">Аукціон</p>
+
+            <h4>Поточний стан аукціону:</h4>
+            <div id="auctionRepresentation" class="auction-name-amount">
+                <p id="itemOfStakes"></p>
+                <div id="amountTotal" class="auction-toolset-amount-now">
+                    <span>Усього грошей зараз:</span>
+                    <sapn id="auctionLastUpdatedSumm" class="auction-amount"></span>
+                </div>
+            </div>
+            <div id="winnerNow"></div>
+            <div id="winSumm"></div>
+
+            <div class="countdown-container" id="countdownStakesWrap">
+            </div>
+            <div id="ImageOfAuctionLot">
+                <img id="imgOfThisAuctionItem" class="iamge-bloger-auction" src="./img/wizard.png" alt="🖼">
+            </div>
+            <div id="auctionThisDescription" class="auction-bloger-description">
+            </div>
+            <button id="callCountdownAuction" class="welcome-btns-bloger">Почати відлік</button>
+        </div>
+        <!---->
+
+        <div id="resultsTablethisAuction" class="current-auction-results hidden">
+            <p id="draggingAuctionresultsHeader" class="dragging-frame-header">Поточна Активна Спільнота:</p>
+            <table class="auction-in-process">
+                <thead>
+                    <th scope="col" class="auction-blogers-th-table">Нік донатерові</th>
+                    <th scope="col" class="auction-blogers-th-table">Загальгий внесок</th>
+                    <th scope="col" class="auction-blogers-th-table">Крайня ставка</th>
+                    <th scope="col" class="auction-blogers-th-table">Час внеску</th>
+                </thead>
+                <tbody id="auctionDataCellsContents" class="auction-blogers-data-users">
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="initiationAuctionModule" class="init-auction-workplace hidden">
+
+            <h3 id="crteateAuctionDrager" class="dragging-frame-header">Створення Аукціону</h3>
+            <hr>
+            <div id="wrapauctionNameInput" class="auctio-ncreation-stage">
+                <label class="auction-create-label" for="auctionNameInput">Назва Аукціону Тут:</label>
+                <input id="auctionNameInput" class="inputs-create-auction" name="name" type="text">
+                <button class="welcome-btns-bloger" id="sbmitAuctionName">Є назва!</button>
+            </div>
+            <div id="wrapauctionStartInput" class="auctio-ncreation-stage">
+                <label class="auction-create-label" for="auctionStartInput">Коли почнемо?:</label>
+                <input id="auctionStartInput" class="inputs-create-auction" name="datetime" type="date" lang="uk">
+                <button class="welcome-btns-bloger" id="sbmitAuctionStart">Обране!</button>
+                <script>
+                    // Set the minimum date to today
+                    const dateInput = document.getElementById('auctionStartInput');
+                    const today = new Date();
+
+                    // Format today's date as YYYY-MM-DD
+                    const formattedDate = today.toISOString().split('T')[0];
+                    dateInput.min = formattedDate;
+
+                </script>
+            </div>
+            <div id="wrapauctionAimInput" class="auctio-ncreation-stage">
+                <label class="auction-create-label" for="auctionAimInput">Мета Тут:</label>
+                <input id="auctionAimInput" class="inputs-create-auction" name="aim" type="text">
+                <button class="welcome-btns-bloger" id="sbmitAuctionAim">Є мета!</button>
+            </div>
+            <div id="wrapauctionImageInput" class="auctio-ncreation-stage">
+                <label class="auction-create-label" for="auctionImageInput">Зображення Аукціону Тут:</label>
+                <input id="auctionImageInput" type="file" accept="image/*" name="auction-image" style="display: none;">
+                <button class="welcome-btns-bloger" id="sbmitAuctionImage">Обрати файл!</button>
+            </div>
+            <button class="welcome-btns-bloger" id="submitThisAuction" style="display: none;">Призначаємо цій
+                Аукціон!</button>
+
+        </div>
+        <div id="setSessionWishesFromUsers" class="">
+        </div>
+
+        <div id="setUpyoutubeFrameThisSession" class="simple-layout-single-column hidden">
+            <h4 class="dragging-frame-header" id="draggingSetupsessionthisstream" style="border-radius: 7px;">
+                Ініціювання
+                посилання до вдіеоресурсу.
+            </h4>
+            <div id="utubeInitIdWrapper" class="dedicated-inner-width simple-layout-single-column set-display-grid">
+                <label for="setThisSessionStreamId" class="auction-create-label">Вкажіть нумер посилання до цього
+                    стріму:</label>
+                <input id="setThisSessionStreamId" type="text" name="youtube-stream-id" class="input-create-auction">
+                <button class="welcome-btns-bloger" id="setUpYoutubeIdThisSession">Прийняти цій код..</button>
+            </div>
+        </div>
+        <div id="youtubeFrame" class="youtube-this-session-repr">
+            <h4 class="dragging-frame-header" id="thisSessionStream">Траніляція стріму..</h4>
+            <div id="streamFrame"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>
