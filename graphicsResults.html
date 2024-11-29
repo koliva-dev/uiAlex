@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Chart</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Currency Changes Over the Last Year</h1>
+    <canvas id="currencyChart" width="800" height="400"></canvas>
+
+    <script>
+        // Dummy data (change rates over months)
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const usdRates = [1.05, 1.04, 1.08, 1.06, 1.10, 1.12, 1.11, 1.13, 1.15, 1.14, 1.13, 1.12];
+        const eurRates = [0.95, 0.96, 0.94, 0.93, 0.92, 0.91, 0.89, 0.88, 0.87, 0.88, 0.90, 0.91];
+
+        // Canvas setup
+        const canvas = document.getElementById("currencyChart");
+        const ctx = canvas.getContext("2d");
+
+        // Chart dimensions
+        const padding = 50;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+
+        // Helper function to scale data
+        const maxRate = Math.max(...usdRates, ...eurRates);
+        const minRate = Math.min(...usdRates, ...eurRates);
+        const scaleY = (value) => chartHeight - ((value - minRate) / (maxRate - minRate) * chartHeight);
+        const scaleX = (index) => padding + (chartWidth / (months.length - 1)) * index;
+
+        // Draw axes
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.stroke();
+
+        // Draw month labels
+        ctx.textAlign = "center";
+        ctx.font = "12px Arial";
+        months.forEach((month, i) => {
+            const x = scaleX(i);
+            ctx.fillText(month, x, canvas.height - padding + 20);
+        });
+
+        // Draw value labels
+        const steps = 5;
+        for (let i = 0; i <= steps; i++) {
+            const value = minRate + (i * (maxRate - minRate)) / steps;
+            const y = scaleY(value);
+            ctx.textAlign = "right";
+            ctx.fillText(value.toFixed(2), padding - 10, y + 4);
+            ctx.beginPath();
+            ctx.moveTo(padding - 5, y);
+            ctx.lineTo(padding, y);
+            ctx.stroke();
+        }
+
+        // Draw lines
+        function drawLine(data, color) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            data.forEach((rate, i) => {
+                const x = scaleX(i);
+                const y = scaleY(rate);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        // USD Line (blue)
+        drawLine(usdRates, "blue");
+
+        // EUR Line (green)
+        drawLine(eurRates, "green");
+
+        // Legend
+        ctx.fillStyle = "blue";
+        ctx.fillRect(canvas.width - 140, padding, 10, 10);
+        ctx.fillText("USD", canvas.width - 120, padding + 10);
+        ctx.fillStyle = "green";
+        ctx.fillRect(canvas.width - 140, padding + 20, 10, 10);
+        ctx.fillText("EUR", canvas.width - 120, padding + 30);
+    </script>
+</body>
+
+</html>

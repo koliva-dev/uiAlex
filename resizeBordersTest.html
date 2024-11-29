@@ -1,0 +1,71 @@
+<div id="resizable-container">
+    <div id="content"></div>
+</div>
+<style>
+    #resizable-container {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+    }
+
+    #resizable-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 3px solid transparent;
+        /* 3px is the "hit area" */
+        cursor: grab;
+        /* Change the cursor to indicate resizing */
+    }
+</style>
+<script>
+    const container = document.getElementById("resizable-container");
+    let isResizing = false;
+    let startX, startY, startWidth, startHeight;
+
+    // Add event listeners to start resizing when clicking near the borders
+    container.addEventListener("mousedown", (e) => {
+        const rect = container.getBoundingClientRect();
+        const borderWidth = 3; // Define the "hit area" width
+
+        // Check if the click is near a border
+        const nearRight = Math.abs(e.clientX - rect.right) <= borderWidth;
+        const nearBottom = Math.abs(e.clientY - rect.bottom) <= borderWidth;
+
+        if (nearRight || nearBottom) {
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = rect.width;
+            startHeight = rect.height;
+
+            document.body.style.cursor = nearRight && nearBottom ? "nwse-resize" : nearRight ? "e-resize" : "s-resize";
+        }
+    });
+
+    // Handle resizing on mouse move
+    document.addEventListener("mousemove", (e) => {
+        if (isResizing) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            // Update dimensions based on the movement direction
+            container.style.width = `${startWidth + dx}px`;
+            container.style.height = `${startHeight + dy}px`;
+        }
+    });
+
+    // Stop resizing on mouse up
+    document.addEventListener("mouseup", () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = "default";
+        }
+    });
+
+</script>

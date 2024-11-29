@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio or Text Input</title>
+</head>
+
+<body>
+    <div>
+        <label for="input-mode">Choose Input Mode:</label>
+        <select id="input-mode">
+            <option value="text">Text Input</option>
+            <option value="audio">Audio Input</option>
+        </select>
+    </div>
+
+    <!-- Text Input Section -->
+    <div id="text-input-section">
+        <label for="username">Від кого:</label>
+        <input type="text" id="username" placeholder="Ваш Нік" />
+        <label for="theme">Призначення:</label>
+        <input type="text" id="theme" placeholder="Тема Повідомлення" />
+        <label for="addressed">Повідомлення:</label>
+        <input type="text" id="addressed" placeholder="Ваше повідомлення" />
+        <label for="timestamp">Час надсилання: (автоматична відмітка)</label>
+        <input type="text" id="timestamp" readonly />
+        <button id="raise-edodn">Raise Edodn Marker</button>
+        <label>Minimum Stake: <span id="min-stake">$0.00</span></label>
+    </div>
+
+    <!-- Audio Input Section -->
+    <div id="audio-input-section" style="display: none;">
+        <label for="username">Від кого:</label>
+        <input type="text" id="username" placeholder="Ваш Нік" />
+        <label for="theme">Призначення:</label>
+        <input type="text" id="theme" placeholder="Тема Повідомлення" />
+        <label for="timestamp">Час надсилання: (автоматична відмітка)</label>
+        <input type="text" id="timestamp" readonly />
+        <label for="audio">Record Your Voice (Max: 5 seconds):</label>
+        <button id="start-recording">Start Recording</button>
+        <button id="stop-recording" disabled>Stop Recording</button>
+        <audio id="audio-playback" controls style="display: none;"></audio>
+        <p id="recording-status"></p>
+    </div>
+
+    <script>
+        const inputMode = document.getElementById('input-mode');
+        const textSection = document.getElementById('text-input-section');
+        const audioSection = document.getElementById('audio-input-section');
+        const timestampInput = document.getElementById('timestamp');
+        const raiseEdodn = document.getElementById('raise-edodn');
+        const minStake = document.getElementById('min-stake');
+
+        // Update the timestamp input
+        const updateTimestamp = () => {
+            timestampInput.value = new Date().toLocaleString();
+        };
+        setInterval(updateTimestamp, 1000);
+
+        // Switch input mode
+        inputMode.addEventListener('change', () => {
+            if (inputMode.value === 'text') {
+                textSection.style.display = 'block';
+                audioSection.style.display = 'none';
+            } else {
+                textSection.style.display = 'none';
+                audioSection.style.display = 'block';
+            }
+        });
+
+        // Set minimum stake (example value, can be dynamic)
+        const minStakeValue = 10.00;
+        minStake.textContent = `$${minStakeValue.toFixed(2)}`;
+
+        // Audio Recording
+        let mediaRecorder;
+        let audioChunks = [];
+        const MAX_RECORD_TIME = 5000; // Max recording time in milliseconds
+
+        const startRecording = document.getElementById('start-recording');
+        const stopRecording = document.getElementById('stop-recording');
+        const audioPlayback = document.getElementById('audio-playback');
+        const recordingStatus = document.getElementById('recording-status');
+
+        startRecording.addEventListener('click', async () => {
+            audioChunks = []; // Reset chunks for new recording
+            recordingStatus.textContent = 'Recording...';
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+                const audioURL = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioURL;
+                audioPlayback.style.display = 'block';
+                recordingStatus.textContent = 'Recording stopped. You can listen to your message or record again.';
+            };
+
+            mediaRecorder.start();
+
+            // Automatically stop recording after the max time
+            setTimeout(() => {
+                if (mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    stream.getTracks().forEach((track) => track.stop());
+                    startRecording.disabled = false;
+                    stopRecording.disabled = true;
+                }
+            }, MAX_RECORD_TIME);
+
+            startRecording.disabled = true;
+            stopRecording.disabled = false;
+        });
+
+        stopRecording.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+                recordingStatus.textContent = 'Recording stopped. You can listen to your message or record again.';
+                startRecording.disabled = false;
+                stopRecording.disabled = true;
+            }
+        });
+
+        // Raise Edodn Marker
+        raiseEdodn.addEventListener('click', () => {
+            alert(`Marker raised with a minimum stake of $${minStakeValue.toFixed(2)}.`);
+        });
+    </script>
+</body>
+
+</html>

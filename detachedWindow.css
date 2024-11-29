@@ -1,0 +1,30 @@
+.frame {
+    position: fixed;
+    top: 100px;
+    left: 100px;
+    width: 300px;
+    height: 200px;
+    border: 2px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    z-index: 1000;
+    cursor: grab;
+}
+
+.frame-header {
+    background: #f0f0f0;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+}
+
+.frame-content {
+    padding: 10px;
+    overflow: auto;
+}
+
+.hidden {
+    display: none;
+}
